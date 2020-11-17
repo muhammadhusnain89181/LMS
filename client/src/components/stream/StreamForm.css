@@ -1,0 +1,75 @@
+.container{
+margin-bottom: 100px;
+}
+.jumbotron{
+  padding: 0rem,0rem,2rem,0rem;
+  margin-bottom: 0rem;
+}
+.outerContainer {
+    /* display: flex; */
+    /* margin: 10px 20px; */
+    justify-content: center;
+    align-items: right;
+    height: 85%;
+    background-color: #1A1A1D;
+  }
+  
+.innerContainer{
+    display: flex;
+    align-items: center;
+    height: 85%;
+    overflow: hidden;
+    padding: 0rem,0rem,2rem,0rem;
+    margin-bottom: 0rem;
+    background-color: rgb(255, 255, 255);
+  }
+  .chatContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #FFFFFF;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    padding: 5;
+    width: 25%;
+  }
+  .sharedScreen{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #FFFFFF;
+    margin-bottom: 32px,10px;
+    border-radius: 8px;
+    width: 75%;
+    padding: 5px;
+  }
+  /* .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #FFFFFF;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    width: 70%;
+  } */
+  @media (min-width: 576px){
+  .jumbotron {
+    padding: 0rem 0rem;
+  }
+}
+  @media (min-width: 320px) and (max-width: 480px) {
+    .outerContainer {
+      height: 100%;
+    }
+    .chatContainer{
+      width: 20%;
+      height: 100%;
+    }
+  }
+  
+  @media (min-width: 480px) and (max-width: 1200px) {
+    .chatContainer{
+      width: 25%;
+    }
+  }
+  
