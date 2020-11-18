@@ -10,20 +10,20 @@ let isSentByCurrentUser = false;
     return (
         isSentByCurrentUser
               ? (
-                <div class="outgoing_msg">
-                  <div class="sent_msg">
+                <div className="outgoing_msg">
+                  <div className="sent_msg">
                     <p>{text}</p>
-                    <span class="time_date">{time}</span> 
+                    <span className="time_date">{time}</span> 
                   </div>
                 </div>
               )
               :(
-                <div class="incoming_msg">
-              <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"/> </div>
-              <div class="received_msg">
-                <div class="received_withd_msg">
+                <div className="incoming_msg">
+              <div className="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"/> </div>
+              <div className="received_msg">
+                <div className="received_withd_msg">
                    <p>{text}</p>
-                      <span class="time_date">{time}</span>
+                      <span className="time_date">{time}</span>
                 </div>
               </div>
             </div> 

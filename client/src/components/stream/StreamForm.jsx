@@ -15,6 +15,7 @@ import queryString from 'query-string'
 // Custom hooks
 import useSignalingSocket from '../../hooks/useSignalingSocket'
 import usePeer from '../../hooks/usePeer'
+import newMyPeer from '../../hooks/useMyPeer'
 import useRDESocket from '../../hooks/useRDESocket'
 //
 import InfoBar from '../Chat/InfoBar/InfoBar'
@@ -22,6 +23,7 @@ import Input from '../Chat/Input/Input'
 import Messages from '../Chat/Messages/Messages'
 import Chat from '../Chat/Chat/Chat'
 import Chatmodule from '../ChatModule/ChatModule'
+import Peer from 'peerjs'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -44,6 +46,8 @@ const StreamForm = ({location}) => {
 
   const peer = usePeer(room)
 
+  //const peer=newMyPeer(room)
+
   const alert = useAlert()
 
   //Check if extension is active
@@ -56,9 +60,15 @@ const StreamForm = ({location}) => {
   }, [isRDEActive])
 
   // Set stream id
-  useEffect(() => {
+  useEffect(() => {    
     if (peer) {
-      setId(peer.room)
+      alert.success(peer.id);
+      setId(peer.room);
+      peer.on('connection',(conn)=>{
+        conn.on('open',(data)=>{
+          console.log(`data : ${data}`);
+        })
+      })
     }
   }, [peer])
 
@@ -67,7 +77,7 @@ const StreamForm = ({location}) => {
     if (isConnected === false) {      
       alert.error('Disconnected from server')
     } else if (isConnected === true ) {
-      alert.success('Connected to server')
+      alert.success(`Connected to server peer ${peer}`)
     } else {
       alert.info('Attempting to connect to server...')
     }
@@ -88,9 +98,10 @@ const StreamForm = ({location}) => {
         const newViewersList = viewersList
 
         if (stream) {
+            console.log(`stream exist ${stream} viewerId ${viewerId}`);
           const call = peer.call(viewerId, stream)
-
           if (call) {
+            console.log(`calling`);
             newViewersList[viewerId] = { active: true }
             setViewersList(newViewersList)
           } else {
@@ -149,8 +160,11 @@ const StreamForm = ({location}) => {
 
   useEffect(() => {
     if (stream && peer && viewersList) {
+      console.log(`stream && peer && viewersList stream ${stream}`);
       for (const id in viewersList) {
+        console.log(`set stream to viewers with id ${id} stream ${stream}`);
         if (!viewersList[id].active) {
+          console.log(`viewersList[id].active`);
           peer.call(id, stream)
 
           const newViewersList = viewersList
@@ -191,7 +205,9 @@ const StreamForm = ({location}) => {
     try {
       const capturedStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
 
-      setStream(capturedStream)
+      console.log(`settting stream id called with stream ${capturedStream}`);
+      setStream(capturedStream);
+      console.log(`stream id set stream ${capturedStream}`);
     } catch (err) {
       console.error(err)
     }

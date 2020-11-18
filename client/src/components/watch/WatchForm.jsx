@@ -10,8 +10,10 @@ import './watch-form.scss'
 import { getCoords, getNaturalCoords } from '../../utils/coords'
 import queryString from 'query-string'
 import Chat from '../Chat/Chat/Chat'
+import Peer from 'peerjs'
 // Custom hooks
 import usePeer from '../../hooks/usePeer'
+import useMyPeer from '../../hooks/useMyPeer'
 import useSignalingSocket from '../../hooks/useSignalingSocket'
 //
 import InfoBar from '../Chat/InfoBar/InfoBar'
@@ -37,11 +39,12 @@ const WatchForm = ({ location }) => {
   const videoRef = useRef(null)
   const videoWithControlsRef = useRef(null)
   const inputRef = useRef(null)
-
+  
   //const [socket, isConnected] = useSignalingSocket('hightly-dev.herokuapp.com', 'viewer', { peerId: id })
   const [socket, isConnected] = useSignalingSocket('localhost:3001/', 'viewer', { peerId: name })
 
   const peer = usePeer(name)
+  //const peer=useMyPeer(name);
 
   const alert = useAlert()
 
@@ -57,7 +60,7 @@ const WatchForm = ({ location }) => {
   //Check Socket connection
   useEffect(() => {
     if (isConnectedToStream === true) {
-      alert.success('Connected to stream')
+      alert.success(`Connected to stream peer id`)
     } else if (isConnectedToStream === false) {
       alert.info('Disconnected from stream')
     }
@@ -76,7 +79,9 @@ const WatchForm = ({ location }) => {
 
         if (!active) {
           alert.error('This stream does not exist')
-        } else {
+        } 
+        else {
+            console.log(`setting stream active with id ${room}`);
           setStreamId(room)
 
           const newUrl = `/watch/?name=${name}&room=${room}`
@@ -93,6 +98,7 @@ const WatchForm = ({ location }) => {
       })
 
       if(streamId && peer) {
+        console.log(`offerNewViewer called by peer ${peer.id} and streamId ${streamId}`);
         socket.emit('offerNewViewer', {
           streamId: streamId,
           viewerId: name,
@@ -114,9 +120,12 @@ const WatchForm = ({ location }) => {
   useEffect(() => {
     if (peer) {
       peer.on('call', call => {
-        call.answer()
+        console.log(`peer recieving call`);
+        call.answer();
+        console.log(`peer answered call`);
 
         call.on('stream', stream => {
+          console.log(`call.on('stream', stream => {`);
           setStream(stream)
 
           const conn = peer.connect(room)

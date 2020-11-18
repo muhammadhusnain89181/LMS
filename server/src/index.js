@@ -1,7 +1,7 @@
 const express = require('express')
 const http = require('http')
 const path = require('path')
-const ExpressPeerServer = require('peer').ExpressPeerServer
+const {ExpressPeerServer} = require('peer'); //.ExpressPeerServer
 const socketIo = require('socket.io')
 const { port } = require('./config')
 
@@ -64,9 +64,9 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('offerNewViewer', data => {
-    console.log(`offerNewViewer called room id ${data.streamId} by ${data.viewerId}`);
+  socket.on('offerNewViewer', data => {    
     if (streams[data.streamId]) {
+      console.log(`offerNewViewer called room id ${data.streamId} by ${data.viewerId}`);
 
       const viewerId = data.viewerId
 
@@ -75,6 +75,7 @@ io.on('connection', socket => {
       //--//
       socket.join(data.streamId);
       //--//
+      console.log(`adding new viewer with id ${data.viewerId} to stream ${streams[data.streamId]}`);
       socket.broadcast.to(streams[data.streamId]).emit('message',{user:'Admin',text:`${data.viewerId} has Joined`})
       io.to(streams[data.streamId].streamerSocket).emit('addNewViewer', viewerId)
     }
