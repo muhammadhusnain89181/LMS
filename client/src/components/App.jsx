@@ -10,6 +10,7 @@ import './app.scss'
 import Chat from '../components/Chat/Chat/Chat'
 // import Join from './Join/Join'
 import Login from '../components/Login/Login'
+import Register from '../components/Register/Register'
 import Chatmodule from '../components/ChatModule/ChatModule'
 
 function App () {
@@ -29,7 +30,7 @@ function App () {
           <Route exact path='/stream' component={StreamForm} />
           <Route exact path='/stream/:rdeKey' component={StreamForm} />
           <Route exact path='/home'component={Index}/>
-          <Route exact path='/'component={Login}/>
+          <Route exact path='/'component={Register}/>
         </Switch>
       </AlertProvider>
     </Router>

@@ -10,15 +10,20 @@ const users = require('../users')
 
 const app = express()
 const server = http.createServer(app)
-
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+  next();
+});
 const io = socketIo(server, {
   handlePreflightRequest: (req, res) => {
     const headers = {
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Origin': req.headers.origin,
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization,*',
+      'Access-Control-Allow-Origin': req.headers.origin || '*',
       'Access-Control-Allow-Credentials': true
     }
-
     res.writeHead(200, headers)  
     res.end()
   }
