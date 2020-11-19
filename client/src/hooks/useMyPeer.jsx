@@ -7,13 +7,14 @@ const useMyPeer = (id, opts) => {
   useEffect(() => {
     console.log(`usepeer called peer ${peer}`); 
     const newPeer = new Peer(id,{
-                  // host: 'https://9000-a8e36848-425b-437e-aab7-5db39f754c5a.ws-eu01.gitpod.io',
+                  //host: 'https://9000-a8e36848-425b-437e-aab7-5db39f754c5a.ws-eu01.gitpod.io',
                   //host:'localhost',
-                  //host:'https://0.peerjs.com/',
-                  host:'dotmatriks.herokuapp.com/',                  
-                  port: '443',
+                  //host:'0.peerjs.com/',
+                  host:'dotmatriks.herokuapp.com',                  
+                  port: 443,
+                  transports: ['websocket'],
                   path: '/',
-                  key:id,
+                  // key:id,
                   secure: true
                 });
                  //setPeer(newPeer);

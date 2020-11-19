@@ -20,7 +20,7 @@ function Login() {
                             </div>
 
                             <div className="form-label-group">
-                            <label Ht="inputPassword">Enter Room name</label>
+                            <label htmlFor="inputPassword">Enter Room name</label>
                                 <input type="text" id="inputPassword" className="form-control" placeholder="Room name" required onChange={(event) => setRoom(event.target.value)}/>
                                 
                             </div>

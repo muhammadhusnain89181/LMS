@@ -44,9 +44,9 @@ const StreamForm = ({location}) => {
   const [RDEsocket, isRDEActive] = useRDESocket('');
   const [doAllowRD, setDoAllowRD] = useState(false);
 
-  const peer = usePeer(room)
+  //const peer = usePeer(room)
 
-  //const peer=newMyPeer(room)
+  const peer=newMyPeer(room)
 
   const alert = useAlert()
 
@@ -64,11 +64,12 @@ const StreamForm = ({location}) => {
     if (peer) {
       alert.success(peer.id);
       setId(peer.room);
-      peer.on('connection',(conn)=>{
-        conn.on('open',(data)=>{
-          console.log(`data : ${data}`);
-        })
-      })
+      console.log(`Peer is ${peer}`);
+      // peer.on('connection',(conn)=>{
+      //   conn.on('open',(data)=>{
+      //     console.log(`data : ${data}`);
+      //   })
+      // })
     }
   }, [peer])
 

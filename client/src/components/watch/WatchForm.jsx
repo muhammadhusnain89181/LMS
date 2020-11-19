@@ -43,8 +43,8 @@ const WatchForm = ({ location }) => {
   //const [socket, isConnected] = useSignalingSocket('hightly-dev.herokuapp.com', 'viewer', { peerId: id })
   const [socket, isConnected] = useSignalingSocket('localhost:3001/', 'viewer', { peerId: name })
 
-  const peer = usePeer(name)
-  //const peer=useMyPeer(name);
+  //const peer = usePeer(name)
+  const peer=useMyPeer(name);
 
   const alert = useAlert()
 
