@@ -1,6 +1,7 @@
 import React,{useState} from 'react'
 import {Link} from 'react-router-dom'
 import Icon from '../Chat/icons/dotmatrikslogo.png'
+import './login.css'
 function Login() {
     const [name, setName] = useState('');
   const [room, setRoom] = useState('');
