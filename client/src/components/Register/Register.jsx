@@ -1,6 +1,6 @@
 import React,{Fragment, useState} from 'react'
 import TextField from '@material-ui/core/TextField';
-import {List,ListItem,ListItemText,ListItemSecondaryAction} from '@material-ui/core'
+import {List,ListItem,ListItemText,ListItemSecondaryAction,FormControlLabel} from '@material-ui/core'
 import {Link} from 'react-router-dom'
 import {Checkbox, Container, CssBaseline, FormControl, Typography} from '@material-ui/core'
 import Icon from '../Chat/icons/dotmatrikslogo.png'
@@ -36,7 +36,7 @@ function Register() {
                         <div className="card card-signin my-5">
                         <div className="card-body">
                             {/* <h2 className="card-title text-center"><img src={Icon}/></h2> */}
-                            <h1 className="card-title text-center">Login</h1>
+                            <h1 className="card-title text-center">Register</h1>
                             <form className="form-signin">
                                 <div className="form-label-group">
                                     <TextField type="text" placeholder="Full Name" fullWidth id="outlined-basic" label="Full Name" variant="outlined" value={name} required autoFocus onchange={(event)=>setName(event.target.value)} />
@@ -62,11 +62,10 @@ function Register() {
                                     {courses.map((value) => {
                                         const labelId = `checkbox-list-secondary-label-${value}`;
                                         return (
-                                        <ListItem key={value} button> 
-                                        {/* onClick={()=>handleToggle(value)}> */}
+                                        <ListItem key={value} button onClick={handleToggle(value)}> 
                                             <ListItemText id={labelId} primary={`${value}`} />
                                             <ListItemSecondaryAction>
-                                            <Checkbox label={value}
+                                            <Checkbox label={'Checkbox value'}
                                                 edge="end"
                                                 onChange={handleToggle(value)}
                                                 checked={checked.indexOf(value) !== -1}
@@ -82,8 +81,15 @@ function Register() {
                                     <button className="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign in</button>
                                 </Link>
                             </form>
+                            <div className=" text-left" style={{marginTop:'50px',marginLeft:'10px'}}>
+                                    
+                                    <Typography>
+                                        Already Registered?<Link to={'/'}> Login</Link>
+                                    </Typography>
+                                    
+                                </div>
                         </div>
-                        </div>
+                        </div>  
                     </div>
                 </div>
             </div>

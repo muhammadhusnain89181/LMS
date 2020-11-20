@@ -30,7 +30,8 @@ function App () {
           <Route exact path='/stream' component={StreamForm} />
           <Route exact path='/stream/:rdeKey' component={StreamForm} />
           <Route exact path='/home'component={Index}/>
-          <Route exact path='/'component={Register}/>
+          <Route exact path='/signup'component={Register}/>
+          <Route exact path='/'component={Login}/>
         </Switch>
       </AlertProvider>
     </Router>
