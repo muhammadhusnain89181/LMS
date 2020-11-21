@@ -11,11 +11,10 @@ import config from '../../config'
 import './stream-form.scss'
 import './StreamForm.css'
 import queryString from 'query-string'
-
 // Custom hooks
 import useSignalingSocket from '../../hooks/useSignalingSocket'
 import usePeer from '../../hooks/usePeer'
-import newMyPeer from '../../hooks/useMyPeer'
+import useMyPeer from '../../hooks/useMyPeer'
 import useRDESocket from '../../hooks/useRDESocket'
 //
 import InfoBar from '../Chat/InfoBar/InfoBar'
@@ -23,7 +22,6 @@ import Input from '../Chat/Input/Input'
 import Messages from '../Chat/Messages/Messages'
 import Chat from '../Chat/Chat/Chat'
 import Chatmodule from '../ChatModule/ChatModule'
-import Peer from 'peerjs'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -44,9 +42,7 @@ const StreamForm = ({location}) => {
   const [RDEsocket, isRDEActive] = useRDESocket('');
   const [doAllowRD, setDoAllowRD] = useState(false);
 
-  //const peer = usePeer(room)
-
-  const peer=newMyPeer(room)
+  const peer = useMyPeer(room)
 
   const alert = useAlert()
 
@@ -60,25 +56,18 @@ const StreamForm = ({location}) => {
   }, [isRDEActive])
 
   // Set stream id
-  useEffect(() => {    
+  useEffect(() => {
     if (peer) {
-      alert.success(peer.id);
-      setId(peer.room);
-      console.log(`Peer is ${peer}`);
-      // peer.on('connection',(conn)=>{
-      //   conn.on('open',(data)=>{
-      //     console.log(`data : ${data}`);
-      //   })
-      // })
+      setId(peer.room)
     }
   }, [peer])
 
   // Notify user about connection status updates
   useEffect(() => {
-    if (isConnected === false) {      
+    if (isConnected === false) {
       alert.error('Disconnected from server')
-    } else if (isConnected === true ) {
-      alert.success(`Connected to server peer ${peer}`)
+    } else if (isConnected === true) {
+      alert.success('Connected to server')
     } else {
       alert.info('Attempting to connect to server...')
     }
@@ -90,6 +79,13 @@ const StreamForm = ({location}) => {
       socket.emit('createStream', { streamId: peer.id,name:name,room:peer.id},(error)=>{
         if(error){alert.error(error);}
       });
+      
+      // socket.on('message', message => {
+      //   console.log('Message is called');
+      //   //alert(message);
+      //   console.log(message);
+      //   setMessages(messages => [ ...messages, message ]);
+      // });
     
       socket.emit('setProps', { peerId: peer.id })
 
@@ -99,10 +95,9 @@ const StreamForm = ({location}) => {
         const newViewersList = viewersList
 
         if (stream) {
-            console.log(`stream exist ${stream} viewerId ${viewerId}`);
           const call = peer.call(viewerId, stream)
+
           if (call) {
-            console.log(`calling`);
             newViewersList[viewerId] = { active: true }
             setViewersList(newViewersList)
           } else {
@@ -161,11 +156,8 @@ const StreamForm = ({location}) => {
 
   useEffect(() => {
     if (stream && peer && viewersList) {
-      console.log(`stream && peer && viewersList stream ${stream}`);
       for (const id in viewersList) {
-        console.log(`set stream to viewers with id ${id} stream ${stream}`);
         if (!viewersList[id].active) {
-          console.log(`viewersList[id].active`);
           peer.call(id, stream)
 
           const newViewersList = viewersList
@@ -206,9 +198,7 @@ const StreamForm = ({location}) => {
     try {
       const capturedStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
 
-      console.log(`settting stream id called with stream ${capturedStream}`);
-      setStream(capturedStream);
-      console.log(`stream id set stream ${capturedStream}`);
+      setStream(capturedStream)
     } catch (err) {
       console.error(err)
     }
@@ -286,6 +276,7 @@ const StreamForm = ({location}) => {
       </div>
     </div>
   </div>
+ 
   </>
   )
 }

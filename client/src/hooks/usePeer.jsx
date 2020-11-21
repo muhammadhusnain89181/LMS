@@ -8,7 +8,6 @@ const usePeer = (id, opts) => {
     const newPeer = new Peer(id, opts)
 
     newPeer.on('open', () => {
-      console.log(`usepeer.open is called ${id}`);
       setPeer(newPeer)
     })
 
@@ -18,7 +17,7 @@ const usePeer = (id, opts) => {
 
     return () => newPeer.destroy()
   }, [])
-  console.log(`Peer created is ${peer}`);
+console.log(`peer : ${peer}`);
   return peer
 }
 

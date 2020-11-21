@@ -1,39 +1,24 @@
-const express = require('express');
-const mongoose = require("mongoose");
-const cors=require('cors')
-const bodyParser = require('body-parser');
-const passport = require('passport');
-const users =require('../routes/users')
+const express = require('express')
 const http = require('http')
 const path = require('path')
-const {ExpressPeerServer} = require('peer');
-const socketIo = require('socket.io');
+const ExpressPeerServer = require('peer').ExpressPeerServer
+const socketIo = require('socket.io')
 const { port } = require('./config')
-////
+
+const { addUser, removeUser, getUser, getUsersInRoom } = require('../users');
+const users = require('../users')
+
 const app = express()
 const server = http.createServer(app)
-//--//
-// const db=require('../config/Keys').mongoURI;
-//
-// mongoose.connect('mongodb://localhost:3001/',{useNewUrlParser:true,useUnifiedTopology:true})
-// .then(()=>{console.log('Mongodb scccesfully connected')})
-// .then((error)=>{console.log(`error is ${error}`);})
-// //
 
-// app.use(passport.initialize());
-// app.use(express.json())
-// app.use(cors())
-// app.use(bodyParser.urlencoded({extended:true}));
-// require('../config/passport')(passport)
-// app.use('../routes/users',users)
-//--//
 const io = socketIo(server, {
   handlePreflightRequest: (req, res) => {
     const headers = {
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization,*',
-      'Access-Control-Allow-Origin': req.headers.origin || '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Origin': req.headers.origin,
       'Access-Control-Allow-Credentials': true
     }
+
     res.writeHead(200, headers)  
     res.end()
   }
@@ -55,33 +40,40 @@ io.on('connection', socket => {
       ...props
     }
   })
- 
+  
+  // socket.on('join',({name,room},callback)=>{
+  //   const user={id:socket.id,name,room};
+  //   if(streams[user.room]){
+  //     socket.join(room);
+  //     socket.emit('message', { user: 'admin', text: `${user.name}, welcome to room ${user.room}.`});
+  //     socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined!` });
+
+  //     io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+  //   }
+  // })
+
   socket.on('createStream', ({ streamId,name}, callback) => {
-    console.log(`create stream is called id ${streamId} by ${name}`);
+    console.log(`create stream is called with id: ${streams} and name : ${name}`);
     streams[streamId] = {
           streamerName:name,
           streamerSocket: socket.id,
           viewers: {}
          }
          socket.join(streamId);
-         console.log(`created stream is ${streams[streamId]} by ${name}`);
     callback();
   });
 
   socket.on('checkStreamExistence', room => {
-    console.log(`checkStreamExistence is called with room ${room}`);
+    console.log('checkStreamExistence is called');
     if (streams[room]) {
-      console.log(`stream found with room id ${room}`);
       socket.emit('streamExistenceInfo', { active: true, room })
     } else {
-      console.log(`stream not found with room id ${room}`);
       socket.emit('streamExistenceInfo', { active: false, room })
     }
   })
 
-  socket.on('offerNewViewer', data => {    
+  socket.on('offerNewViewer', data => {
     if (streams[data.streamId]) {
-      console.log(`offerNewViewer called room id ${data.streamId} by ${data.viewerId}`);
 
       const viewerId = data.viewerId
 
@@ -90,7 +82,6 @@ io.on('connection', socket => {
       //--//
       socket.join(data.streamId);
       //--//
-      console.log(`adding new viewer with id ${data.viewerId} to stream ${streams[data.streamId]}`);
       socket.broadcast.to(streams[data.streamId]).emit('message',{user:'Admin',text:`${data.viewerId} has Joined`})
       io.to(streams[data.streamId].streamerSocket).emit('addNewViewer', viewerId)
     }

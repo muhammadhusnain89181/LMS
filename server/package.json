@@ -3,26 +3,15 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "nodemon src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "dependencies": {
-    "bcrypt": "^5.0.0",
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "is-empty": "^1.2.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.10.15",
     "morgan": "^1.9.1",
-    "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0",
-    "peer": "^0.5.3",
-    "socket.io": "^3.0.2",
-    "validator": "^13.1.17"
+    "peer": "^0.2.10",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "eslint": "^5.15.1",
@@ -32,6 +21,6 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-standard": "^4.0.0",
-    "nodemon": "^2.0.6"
+    "nodemon": "^1.19.4"
   }
 }
