@@ -14,7 +14,7 @@ const useMyPeer = (id, opts) => {
                   port: 443,
                   transports: ['websocket'],
                   path: '/',
-                  // key:id,
+                  key:'peerjs',
                   secure: true
                 });
                  //setPeer(newPeer);
@@ -30,7 +30,7 @@ const useMyPeer = (id, opts) => {
     console.log(`exported peer is : ${peer}`);  
     return () => newPeer.destroy()
    }, [])
-  
+   console.log(`useMyPeer : ${peer}`);
   return peer
 }
 

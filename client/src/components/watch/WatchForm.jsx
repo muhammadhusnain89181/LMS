@@ -9,7 +9,7 @@ import { object } from 'prop-types'
 import './watch-form.scss'
 import { getCoords, getNaturalCoords } from '../../utils/coords'
 import queryString from 'query-string'
-import Chat from '../Chat/Chat/Chat'
+import Chat from '../Chat/Chat'
 // Custom hooks
 import usePeer from '../../hooks/usePeer'
 import useMyPeer from '../../hooks/useMyPeer'
@@ -18,11 +18,84 @@ import useSignalingSocket from '../../hooks/useSignalingSocket'
 import InfoBar from '../Chat/InfoBar/InfoBar'
 import Input from '../Chat/Input/Input'
 import Messages from '../Chat/Messages/Messages'
-
+import Peer from 'peerjs'
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Toolbar from '@material-ui/core/Toolbar';
+import Drawer from '@material-ui/core/Drawer';
+import clsx from 'clsx';
+import {useTheme } from '@material-ui/core/styles';
+import {Grid,makeStyles,createStyles} from '@material-ui/core'
+import Divider from '@material-ui/core/Divider';
+const drawerWidth = 400;
+const useStyles = makeStyles((theme) => createStyles({
+  root: {
+    display: 'flex',
+  },
+  dashboard: {
+    flexGrow:1,
+    paddingLeft:'20px',
+    paddingRight:'20px',
+    paddingTop:'20px',
+      },
+      menuButton: {
+        marginRight: theme.spacing(2),
+      },
+      hide: {
+        display: 'none',
+      },
+      drawer: {
+        width: drawerWidth,
+        flexShrink: 0,
+      },
+      drawerPaper: {
+        marginTop:100,
+        width: drawerWidth,
+      },
+      drawerHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        padding: theme.spacing(0, 1),
+        // necessary for content to be below app bar
+        ...theme.mixins.toolbar,
+        justifyContent: 'flex-end',
+      },
+      content: {
+        flexGrow: 1,
+        padding:0,
+        padding: theme.spacing(1),
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        marginLeft: -drawerWidth,
+      },
+      contentShift: {
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginLeft: 0,
+      },
+}));
 const propTypes = { match: object }
 
 const WatchForm = ({ location }) => {
-  const {name,room}=queryString.parse(location.search);
+  const [open, setOpen] = React.useState(false);
+  const theme = useTheme();
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+  const classes=useStyles();
+  // const {name,room}=queryString.parse(location.search);
+  const name='Husnain';const room='742GYCWUEB3683ERS';
   const [streamId, setStreamId] = useState(null)
   const [stream, setStream] = useState(null)
   const [id] = useState(uuid())
@@ -40,9 +113,10 @@ const WatchForm = ({ location }) => {
   const inputRef = useRef(null)
 
   //const [socket, isConnected] = useSignalingSocket('hightly-dev.herokuapp.com', 'viewer', { peerId: id })
-  const [socket, isConnected] = useSignalingSocket('localhost:3001/', 'viewer', { peerId: name })
+  const [socket, isConnected] = useSignalingSocket('localhost:3000/', 'viewer', { peerId: name })
 
-  const peer = useMyPeer(name)
+  // const peer = useMyPeer(name)
+  const peer =new Peer(name)
 
   const alert = useAlert()
 
@@ -94,6 +168,7 @@ const WatchForm = ({ location }) => {
       })
 
       if(streamId && peer) {
+        // console.log(`stream is ${stream}`);
         socket.emit('offerNewViewer', {
           streamId: streamId,
           viewerId: name,
@@ -137,12 +212,13 @@ const WatchForm = ({ location }) => {
     if (RDEConn) {
       // console.log(RDEConn)
       RDEConn.send('лох блядkm')
-      console.log('otpravil suka')
+      // console.log('otpravil suka')
     }
   }, [RDEConn])
 
   // Display steram on a page
   useEffect(() => {
+    // console.log(`stream is ${stream}`);
     if (stream) {
       videoRef.current.srcObject = stream
     }
@@ -155,10 +231,10 @@ const WatchForm = ({ location }) => {
   }, [doShowRDControls, videoWithControlsRef, stream])
 
   const onBtnClick = () => {
-    const id = inputRef.current.value.slice(inputRef.current.value.length - 36)
+    const id = inputRef.current.value;
 
     // TODO: Add some regex
-    if (id.length === 36) {
+    if (id.length>=0) {
       socket.emit('checkStreamExistence', id)
     } else {
       alert.error(`Your link or id is invalid`)
@@ -213,7 +289,7 @@ const WatchForm = ({ location }) => {
     }
   }
   return (
-    <>
+  <Layout>
     <div className="watch-form">
             <Helmet>
               <title>PowerTeach &#183; Watch</title>
@@ -253,27 +329,47 @@ const WatchForm = ({ location }) => {
             {streamId
               ? (
                 <div className="outerContainer">
-                  <InfoBar room={room}/>
-                  <div className="innerContainer">
-                    <div className="chatContainer border border-dark">
-                    <Chat messages={messages} name={name} message={message} setMessage={setMessage} sendMessage={sendMessage}/>
-                    </div>
-                    <div className="sharedScreen border border-dark">
-                          <Animated>
-                            <div className='jumbotron text-center pt-1'>
-                              <hr/>
-                              {/* <div className='status-badges-viewer'>
-                                <div className='text-muted mt-1'>
-                                Server connection status:&nbsp;&nbsp;
-                                  {isConnected
-                                    ? <span className='badge badge-success'>Online</span>
-                                    : <span className='badge badge-warning'>Offline</span>
-                                  }
+                  <div className={classes.root}>
+                    <Drawer
+                      className={classes.drawer}
+                      variant="persistent"
+                      anchor="left"
+                      open={open}
+                      classes={{
+                        paper: classes.drawerPaper,
+                      }}
+                    >
+                      <div className={classes.drawerHeader}>
+                        <IconButton onClick={handleDrawerClose}>
+                          {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                      </div>
+                      <Divider />
+                      <Chat/>
+                    </Drawer>
+                    <main
+                      className={ clsx(classes.content, { [classes.contentShift]: open, })}>
+                      <Toolbar> <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
+                          edge="start"
+                          className={clsx(classes.menuButton, open && classes.hide)} >
+                          <ChevronRightIcon /> </IconButton>                    
+                      </Toolbar>
+                      <div className="sharedScreen border border-dark">
+                            <Animated>
+                              <div className='jumbotron text-center pt-1'>
+                                <hr/>
+                                {/* <div className='status-badges-viewer'>
+                                  <div className='text-muted mt-1'>
+                                  Server connection status:&nbsp;&nbsp;
+                                    {isConnected
+                                      ? <span className='badge badge-success'>Online</span>
+                                      : <span className='badge badge-warning'>Offline</span>
+                                    }
+                                  </div>
                                 </div>
-                              </div>
-                              <hr className='my-4' /> */}
-                              <div className='embed-responsive embed-responsive-16by9'>
-                                {stream
+                                <hr className='my-4' /> */}
+                                <div className='embed-responsive embed-responsive-16by9'>
+                                  {stream
                                   ? <video ref={videoRef} className='embed-responsive-item' controls autoPlay></video>
                                   : <EmptyEmbed role='viewer'/>
                                 }
@@ -284,14 +380,44 @@ const WatchForm = ({ location }) => {
                               </button>
                             </div>
                           </Animated>
-                    </div>
+                     </div>
+                    </main>
                   </div>
                 </div>
+                // <div className="outerContainer">
+                //     <div className="sharedScreen border border-dark">
+                //           <Animated>
+                //             <div className='jumbotron text-center pt-1'>
+                //               <hr/>
+                //               {/* <div className='status-badges-viewer'>
+                //                 <div className='text-muted mt-1'>
+                //                 Server connection status:&nbsp;&nbsp;
+                //                   {isConnected
+                //                     ? <span className='badge badge-success'>Online</span>
+                //                     : <span className='badge badge-warning'>Offline</span>
+                //                   }
+                //                 </div>
+                //               </div>
+                //               <hr className='my-4' /> */}
+                //               <div className='embed-responsive embed-responsive-16by9'>
+                //                 {stream
+                //                   ? <video ref={videoRef} className='embed-responsive-item' controls autoPlay></video>
+                //                   : <EmptyEmbed role='viewer'/>
+                //                 }
+                //               </div>
+                //               <hr/>
+                //               <button onClick={toggleRDControls} type='button' className='btn btn-outline-primary waves-effect'>
+                //                 <i className='fas fa-compress'></i>
+                //               </button>
+                //             </div>
+                //           </Animated>
+                //     </div>
+                // </div>
               )
               : (
                 <Animated>
                   <div className='jumbotron text-center pt-1'>
-              <h2 className='card-title h2 mt-4'>Enter Your Room Name</h2>
+                    <h2 className='card-title h2 mt-4'>Enter Your Room Name</h2>
                     <div className='row d-flex justify-content-center'>
                       <div className='col-xl-7 pb-2'>
                         <p className='card-text'>Enter Room name here to connect to Lecture Delivery</p>
@@ -310,7 +436,7 @@ const WatchForm = ({ location }) => {
               )
             }
     </div>
-          </>
+  </Layout>
   )
 }
 

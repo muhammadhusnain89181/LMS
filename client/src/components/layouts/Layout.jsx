@@ -4,13 +4,11 @@ import { node } from 'prop-types'
 
 const propTypes = { children: node }
 
-const Layout = ({ children ,room}) => (
-  <>
-    <div>
-      <Navbar />
+const Layout = ({children ,room}) => (
+    <>
+      <Navbar/>
       {children }
-    </div>
-  </>
+    </>
 )
 
 Layout.propTypes = propTypes

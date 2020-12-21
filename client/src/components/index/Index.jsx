@@ -1,40 +1,176 @@
-import React,{useEffect,useState} from 'react'
+import React,{useEffect,useState,createContext,useContext} from 'react'
 import Layout from '../layouts/Layout'
 import Animated from '../other/Animated'
 import { Link } from 'react-router-dom'
 import queryString from 'query-string'
+import {useAlert} from 'react-alert'
+import {CardActions,CardActionArea,CardMedia, 
+  Theme,makeStyles,createStyles,Grid, Paper} from '@material-ui/core'
 import Icon from '../Chat/icons/dotmatrikslogo.png'
 import './index.scss'
+import path from 'path'
+import Courses from '../layouts/courses'
+import axios from 'axios'
+import Upload from '../Chat/icons/upload.png'
+import AuthApi from '../../utils/AuthApi'
+import store from 'store'
+import StudentDashboard from '../StudentHome/Dashboard'
+import TeacherDashboard from '../TeacherHome/TeacherHome'
+import { logoutUser } from "../../actions/authActions";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+const useStyles = makeStyles((theme) => createStyles({
+  dashboard: {
+    paddingLeft:'20px',
+    paddingRight:'20px'
+      }
+}));
 
-const Index = ({location}) => {
+const Index = (props) => {
+  const {user}=props.auth;
+  const authApi=useContext(AuthApi)
+  const classes=useStyles();
+  const alert = useAlert()
   const [newname, setName]= useState('');
   const [newroom, setRoom]= useState('');
-  useEffect(() => {
-    const { name, room } = queryString.parse(location.search);
-    setName(name);setRoom(room);
-  }, [])  
+  const [file, setFile]= useState('');
+  const [data,setData]=useState('');
+  // const [teacher,setTeacher]=useState('');
+  // const [user,setUser]=useState(store.get('user'))
+  const currentUser=createContext(store.get('user'));
+  // const [token,setToken]=useState(getFromStorage('token'))
+  
+  // useEffect(()=>{
+  //   localStorage.removeItem('course')
+  //   // axios.get('http://localhost:3000/teacher/'+'teacherdemo@gmail.com')
+  //   axios.get('http://localhost:3000/course/teacher/'+'chhassnain16@gmail.com')
+  //   .then((response)=>{
+  //     setData(response.data.teachers)
+  //     console.log(`check user is ${user.email}`);
+  //     console.log(`teacher is ${user.role}`);
+  //     console.log(`teacher is ${store.get('user').id} ::${store.get('user').email} ::${store.get('user').role} :: ${store.get('user').accessToken}`);
+  //   })
+  //   .catch((error)=>console.log(error))
+  // },[])
+  const chooseFile=(event)=>{
+    // setFile(event.target.files[0]) 
+    const fileReader=new FileReader();
+    fileReader.readAsText(event.target.files[0],'UTF-8');
+    fileReader.onload=(e)=>{
+      console.log(`chooseFile called read file`);
+      const fileObject=JSON.parse(e.target.result);
+      setFile(fileObject)
+    }
+  }
+  const readFile=()=>{
+    // console.log(` user is : ${currentUser} ::: file is : ${file.reg_id}`);
+    // if(file && file.reg_id===currentUser.email){
+    //     const teacher={          
+    //       name:file.projectName,
+    //       email:file.reg_id,
+    //       contact:file.contact,
+    //       address:file.address,
+    //       qualification:file.tprojectqualification,
+    //       courses:file.courses,
+    //     }
+    //     console.log(`file is ${teacher.name}`);
+    //     axios.post('http://localhost:3000/teacher/addTeacher',teacher).
+    //     then((response)=>{
+    //         if(response.status===200){
+    //           alert.success('File Succesfully Uploaded')
+    //         }
+    //     })
+    // }else{
+    //   alert.error('Please select your project')
+    // }
+
+    if(file){
+      const teacher={
+        name:file.projectName,
+        email:file.reg_id,
+        contact:file.contact,
+        address:file.address,
+        qualification:file.tprojectqualification,    
+      }
+      console.log('obj',teacher);
+      const newList=file.courses.map((course)=>{
+        const newcourse={
+        courseName:course.courseName,
+        courseCode:course.courseCode,
+        creditHours:course.creditHours,
+        percomplete:course.percomplete,
+        plo:course.plo,
+        courseDateCreated:course.courseDateCreated,
+        courseDateModified:course.courseDateModified,
+        courseStatus:course.courseStatus,
+        chapters:course.chapters,
+        teachers:[{
+          name:file.projectName,
+          email:file.reg_id,
+          contact:file.contact,
+          address:file.address,
+          qualification:file.tprojectqualification,
+        }],
+        students:course.student,
+      }
+      console.log(`newcourse called ${newcourse.courseName}`);
+      axios.post('http://localhost:3000/course/addCourse',newcourse).
+        then((response)=>{
+            if(response.status===200){
+              // alert.success(response)
+              alert('File Succesfully Uploaded')
+            }
+        })
+      // console.log('course',newcourse);
+      })    
+      // file.courses=newList;
+      // axios.post('http://localhost:3000/course/addCourse',file).
+      //   then((response)=>{
+      //       if(response.status===200){
+      //         alert(response)
+      //         alert.success('File Succesfully Uploaded')
+      //       }
+      //   })
+      // axios.post('http://localhost:3000/course/addCourse',teacher).
+      // then((response)=>{
+      //   alert(response);
+      // }).then((error)=>{
+      //   alert(error);
+      // })
+    }
+  }
+  // useEffect(() => {
+  //   localStorage.removeItem('course')
+  //   console.log(`useEffecr from Index `);
+  //   const { name, room } = queryString.parse(location.search);
+  //   setName(name);setRoom(room);
+  //   console.log(`file 2 is ${file}`);
+  // }, [user])  
   return(
-  <>
-    <Animated>
-      <div className='jumbotron text-center mainIndex'>
-        <img src={Icon}/>
-        <h2 className='card-title h2'>Dotmatriks LMS</h2>
-        {/* //<p className='blue-text my-4 font-weight-bold'>Free and intuitive to use</p>
-        <div className='row d-flex justify-content-center'>
-          <div className='col-xl-7 pb-2'>
-            <p className='card-text'>Based on WebRTC technology and websockets, the app creates peer-to-peer connection between streamer and watcher browser</p>
-          </div>
-        </div> */}
-        <hr className='my-4' />
-        <div className='pt-2'>
-          {/* <Link to='stream' className='btn btn-round aqua-gradient'>Start Stream <span className='fas fa-broadcast-tower ml-1'></span></Link> */}
-          <Link to={`/stream/?name=${newname}&room=${newroom}`} className='btn btn-round aqua-gradient'>Start Stream <span className='fas fa-broadcast-tower ml-1'></span></Link>
-          <Link to={`/watch/?name=${newname}&room=${newroom}`} className='btn waves-effect purple-gradient btn-round'>Watch Another Stream <i className='fas fa-eye ml-1'></i></Link>
-        </div>
-      </div>
-    </Animated>
-  </>
+    <currentUser.Provider>
+      <Layout>
+        <Animated>
+          {/* <h1>{user.email}</h1> */}
+          { user.role==='student' ? 
+              <StudentDashboard/>
+            :  
+              <TeacherDashboard/>
+          }
+        </Animated>
+    </Layout>
+    </currentUser.Provider>                
   )
  }
+ Index.propTypes = {
+  logoutUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired
+};
 
-export default Index
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+export default connect(
+  mapStateToProps,
+  { logoutUser }
+)(Index);

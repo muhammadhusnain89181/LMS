@@ -8,7 +8,7 @@ import Navbar from '../layouts/Navbar'
 import { useAlert } from 'react-alert'
 import uuid from 'uuid/v1'
 import config from '../../config'
-import './stream-form.scss'
+// import './stream-form.scss'
 import './StreamForm.css'
 import queryString from 'query-string'
 // Custom hooks
@@ -20,13 +20,99 @@ import useRDESocket from '../../hooks/useRDESocket'
 import InfoBar from '../Chat/InfoBar/InfoBar'
 import Input from '../Chat/Input/Input'
 import Messages from '../Chat/Messages/Messages'
-import Chat from '../Chat/Chat/Chat'
+import Chat from '../Chat/Chat'
 import Chatmodule from '../ChatModule/ChatModule'
-
+import store from 'store'
+import Peer from 'peerjs'
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import {Grid,makeStyles,createStyles} from '@material-ui/core'
+import { Widget } from 'react-chat-widget';
+import 'react-chat-widget/lib/styles.css';
+import {MessageList} from 'react-chat-elements'
+import Dialog2 from '../Chat/Dialog'
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Toolbar from '@material-ui/core/Toolbar';
+import Drawer from '@material-ui/core/Drawer';
+import clsx from 'clsx';
+import {useTheme } from '@material-ui/core/styles';
 const isProd = process.env.NODE_ENV === 'production'
-
+const drawerWidth = 400;
+const useStyles = makeStyles((theme) => createStyles({
+  root: {
+    display: 'flex',
+  },
+  dashboard: {
+    flexGrow:1,
+    paddingLeft:'20px',
+    paddingRight:'20px',
+    paddingTop:'20px',
+      },
+      menuButton: {
+        marginRight: theme.spacing(2),
+      },
+      hide: {
+        display: 'none',
+      },
+      drawer: {
+        width: drawerWidth,
+        flexShrink: 0,
+      },
+      drawerPaper: {
+        marginTop:100,
+        width: drawerWidth,
+      },
+      drawerHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        padding: theme.spacing(0, 1),
+        // necessary for content to be below app bar
+        ...theme.mixins.toolbar,
+        justifyContent: 'flex-end',
+      },
+      content: {
+        flexGrow: 1,
+        padding:0,
+        padding: theme.spacing(1),
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        marginLeft: -drawerWidth,
+      },
+      contentShift: {
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginLeft: 0,
+      },
+}));
 const StreamForm = ({location}) => {
-  const {name,room}=queryString.parse(location.search);
+  const [open, setOpen] = React.useState(false);
+  const theme = useTheme();
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+  // const user=store.get('user')
+  // const name=user.id;const room=user.email;
+  // const {name,room}=queryString.parse(location.search);
+  const classes=useStyles();
+  const name='Tajammal';const room='742GYCWUEB3683ERS';
   const [viewersList, setViewersList] = useState({})
 
   const [id, setId] = useState(uuid());
@@ -37,14 +123,35 @@ const StreamForm = ({location}) => {
   const videoRef = useRef(null)
 
   // const [socket,     isConnected] = useSignalingSocket('hightly-v.herokuappde.com', 'streamer', { peerId: id })
-  const [socket, isConnected] = useSignalingSocket('localhost:3001/', 'streamer', { peerId: name })
-  //const [RDEsocket, isRDEActive] = useRDESocket(location.match.params.rdeKey ? location.match.params.rdeKey : '')
+  const [socket, isConnected] = useSignalingSocket('localhost:3000/', 'streamer', { peerId: name })
+  // const [RDEsocket, isRDEActive] = useRDESocket(location.match.params.rdeKey ? location.match.params.rdeKey : '')
   const [RDEsocket, isRDEActive] = useRDESocket('');
   const [doAllowRD, setDoAllowRD] = useState(false);
 
-  const peer = useMyPeer(room)
-
+  const peer = usePeer(room)
+  // const peer =useMyPeer(room)
   const alert = useAlert()
+  // const [open, setOpen] = React.useState(false);
+  const [scroll, setScroll] = React.useState('paper');
+
+  const handleClickOpen = (scrollType) => () => {
+    setOpen(true);
+    setScroll(scrollType);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const descriptionElementRef = React.useRef(null);
+  React.useEffect(() => {
+    if (open) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
+      }
+    }
+  }, [open]);
 
   //Check if extension is active
   useEffect(() => {
@@ -64,6 +171,7 @@ const StreamForm = ({location}) => {
 
   // Notify user about connection status updates
   useEffect(() => {
+    console.log(`socket :: ${socket} :: viewrlist ${viewersList} :: peer ${peer}`);
     if (isConnected === false) {
       alert.error('Disconnected from server')
     } else if (isConnected === true) {
@@ -76,16 +184,10 @@ const StreamForm = ({location}) => {
   useEffect(() => {
     if (socket && viewersList && peer) {
        //socket.emit('createStream',{streamId: peer.id});
+       console.log(`createstream called`);
       socket.emit('createStream', { streamId: peer.id,name:name,room:peer.id},(error)=>{
         if(error){alert.error(error);}
       });
-      
-      // socket.on('message', message => {
-      //   console.log('Message is called');
-      //   //alert(message);
-      //   console.log(message);
-      //   setMessages(messages => [ ...messages, message ]);
-      // });
     
       socket.emit('setProps', { peerId: peer.id })
 
@@ -111,6 +213,7 @@ const StreamForm = ({location}) => {
       })
 
       socket.on('removeViewer', viewerId => {
+        alert.error(`❌ viewer <${viewerId}> disconnected`)
         console.log(`❌ viewer <${viewerId}> disconnected`)
 
         const newViewersList = viewersList
@@ -124,7 +227,7 @@ const StreamForm = ({location}) => {
         //setUsers(users);
       });
     }
-  }, [socket, viewersList, peer, stream])
+  }, [socket, viewersList, peer,stream])
   
   useEffect(()=>{
     if(socket){
@@ -237,17 +340,83 @@ const StreamForm = ({location}) => {
       });
     }
   }
+  const DialogBox=()=>{
+    return (
+      <div>
+        <Button onClick={handleClickOpen('paper')}>scroll=paper</Button>
+        <Button onClick={handleClickOpen('body')}>scroll=body</Button>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          scroll={scroll}
+          aria-labelledby="scroll-dialog-title"
+          aria-describedby="scroll-dialog-description"
+        >
+          <DialogTitle id="scroll-dialog-title">Subscribe</DialogTitle>
+          <DialogContent dividers={scroll === 'paper'}>
+            <DialogContentText
+              id="scroll-dialog-description"
+              ref={descriptionElementRef}
+              tabIndex={-1}
+            >
+              {[...new Array(50)]
+                .map(
+                  () => `Cras mattis consectetur purus sit amet fermentum.
+  Cras justo odio, dapibus ac facilisis in, egestas eget quam.
+  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  Praesent commodo cursus magna, vel scelerisque nisl consectetur et.`,
+                )
+                .join('\n')}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleClose} color="primary">
+              Subscribe
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  }
   ///Messages
   return (
-    <>
-      <div className="outerContainer">
-       <InfoBar room={room}/>
-      <div className="innerContainer">
-        <div className="chatContainer border border-dark">
-          <Chat messages={messages} name={name} message={message} setMessage={setMessage} sendMessage={sendMessage}/>
-         </div>
-        <div className="sharedScreen border border-dark">
+  <Layout>
+    <div className="outerContainer">
+    <div className={classes.root}>
+      <Drawer
+        className={classes.drawer}
+        variant="persistent"
+        anchor="left"
+        open={open}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+      >
+        <div className={classes.drawerHeader}>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </div>
+        <Divider />
+        <Chat/>
+      </Drawer>
+      <main
+        className={ clsx(classes.content, { [classes.contentShift]: open, })}>
+        <Toolbar> <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
+            edge="start"
+            className={clsx(classes.menuButton, open && classes.hide)} >
+            <ChevronRightIcon /> </IconButton>
+            <div className='text-center pt-2'>
+                <button onClick={startCapture} type='button' className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Start <span className='fas fa-play ml-1'></span></button>
+                <button onClick={stopCapture} type='button' className={`btn btn-outline-danger waves-effect btn-round ${stream !== null ? '' : 'disabled'}`}>Stop <i className='fas fa-stop'></i></button>
+              </div>
+        </Toolbar>
+        <div className="col-12 sharedScreen border border-dark">
           <Animated> 
+          {/* <button type='button' onClick={handleClickOpen('paper')} className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Open <span className='fas fa-play ml-1'></span></button>                */}
             <Helmet>
               <title>{`${stream ? '🔴' : ''}`} PowerTeach &#183; Stream</title>
             </Helmet>
@@ -266,19 +435,59 @@ const StreamForm = ({location}) => {
                   <label className='custom-control-label' htmlFor='defaultChecked2'>Use Remote Desktop</label>
                 </div>
               ) : ''
-            }
-            <div className='pt-2'>
-              <button onClick={startCapture} type='button' className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Start <span className='fas fa-play ml-1'></span></button>
-              <button onClick={stopCapture} type='button' className={`btn btn-outline-danger waves-effect btn-round ${stream !== null ? '' : 'disabled'}`}>Stop <i className='fas fa-stop'></i></button>
+              }
+              {/* <div className='pt-2'>
+                <button onClick={startCapture} type='button' className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Start <span className='fas fa-play ml-1'></span></button>
+                <button onClick={stopCapture} type='button' className={`btn btn-outline-danger waves-effect btn-round ${stream !== null ? '' : 'disabled'}`}>Stop <i className='fas fa-stop'></i></button>
+              </div> */}
             </div>
-          </div>
-        </Animated>
-      </div>
+          </Animated>
+        </div>
+      </main>
     </div>
-  </div>
+      {/* <div className="col-12 innerContainer">
+        <Dialog2/> */}
+      {/* <Chat messages={messages} name={name} message={message} setMessage={setMessage} sendMessage={sendMessage}/> */}
+        {/* <div className="col-3 chatContainer border border-dark">
+          <Chat messages={messages} name={name} message={message} setMessage={setMessage} sendMessage={sendMessage}/>
+        </div> */}
+        {/* <div className="col-9 sharedScreen border border-dark">
+          <Animated> 
+          <button type='button' onClick={handleClickOpen('paper')} className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Open <span className='fas fa-play ml-1'></span></button>               
+            <Helmet>
+              <title>{`${stream ? '🔴' : ''}`} PowerTeach &#183; Stream</title>
+            </Helmet>
+            <div className='jumbotron text-center pt-1'>
+            <div className='embed-responsive embed-responsive-21by9'>
+              {stream
+                ? <video ref={videoRef} className='embed-responsive-item' autoPlay />
+                : <EmptyEmbed />
+              }
+            </div>
+            <hr className='my-4' />
+            {isRDEActive
+              ? (
+                <div className='custom-control custom-checkbox'>
+                  <input onChange={() => setDoAllowRD(!doAllowRD)} type='checkbox' className='custom-control-input' id='defaultChecked2'/>
+                  <label className='custom-control-label' htmlFor='defaultChecked2'>Use Remote Desktop</label>
+                </div>
+              ) : ''
+              }
+              <div className='pt-2'>
+                <button onClick={startCapture} type='button' className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Start <span className='fas fa-play ml-1'></span></button>
+                <button onClick={stopCapture} type='button' className={`btn btn-outline-danger waves-effect btn-round ${stream !== null ? '' : 'disabled'}`}>Stop <i className='fas fa-stop'></i></button>
+              </div>
+            </div>
+          </Animated> */}
+        {/* </div> */}
+      {/* </div> */}
+    </div>
  
-  </>
+  </Layout>
   )
 }
+
+
+
 
 export default StreamForm

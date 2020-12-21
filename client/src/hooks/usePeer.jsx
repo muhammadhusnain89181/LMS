@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Peer from 'peerjs'
 
 const usePeer = (id, opts) => {
+  console.log(`peer id is ::: ${id}`);
   const [peer, setPeer] = useState(null)
 
   useEffect(() => {

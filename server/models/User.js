@@ -1,14 +1,28 @@
-const mongoose =require('mongoose');
-const Schema=mongoose.Schema;
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+// Create Schema
+const UserSchema = new Schema({
+  name:{
+    type:String,
+    required:true,
+  },
+  email: {
+    type: String,
+    required: true,
+    trim:true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  role:{
+    type:String,
+    // default:'student',
+    enum:['student','teacher','admin']
+  },
+  accessToken:{
+    type:String
+  }
+});
 
-const UserSchema=new Schema({
-    id:{type:String},
-    avatar:{type:String,required:false},
-    name:{type:String, required:true},
-    email:{type:String,required:true},
-    password:{type:String,required:true},
-    courses:{type:String,required:true},
-    date:{type:Date, default:Date.now},
-})
-
-module.exports=User=mongoose.model('users',UserSchema)
+module.exports = User = mongoose.model("users", UserSchema);
