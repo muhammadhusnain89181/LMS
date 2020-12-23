@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import queryString from 'query-string'
 import {useAlert} from 'react-alert'
 import {CardActions,CardActionArea,CardMedia, 
-  Theme,makeStyles,createStyles,Grid, Paper} from '@material-ui/core'
+  Theme,makeStyles,createStyles,Grid, Paper,Button} from '@material-ui/core'
 import Icon from '../Chat/icons/dotmatrikslogo.png'
 // import './index.scss'
 import path from 'path'
@@ -20,6 +20,8 @@ import Loader from 'react-loader-spinner'
 import { logoutUser } from "../../actions/authActions";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import CloudUploadIcon from '@material-ui/icons/CloudUpload'
+import { readFileSync } from 'fs'
 const useStyles = makeStyles((theme) => createStyles({
   dashboard: {
     paddingLeft:'20px',
@@ -61,7 +63,7 @@ function Dashboard(props) {
         setFile(fileObject)
       }
     }
-    const readFile=()=>{
+    const readFile= async()=>{
   
       if(file){
           file.courses.map((course)=>{
@@ -105,9 +107,13 @@ function Dashboard(props) {
                 <div className='card-body'>
                   <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                     <input className='card-title h5' type='file' onChange={chooseFile}/>
-                    <button className='btn btn-round aqua-gradient' onClick={readFile}>
+                    <Button variant="outlined" onClick={readFile} color="default" startIcon={<CloudUploadIcon/>} >
+                      Upload
+                    </Button>
+                    {/* <Button
+                      <button className='btn btn-round aqua-gradient' onClick={readFile}>
                       <img src={Upload} />
-                    </button>
+                    </button> */}
                   </Grid>
                 </div> 
               </div>
@@ -124,8 +130,7 @@ function Dashboard(props) {
                       : 
                       
                       <>
-                        <Loader type='Puff' color='#00BFFF' height={100} width={100} timeout={3000}/>                    
-                        {/* <div className='h5'>Loading...</div>                     */}
+                        <Loader type='Puff' color='#00BFFF' height={100} width={100} timeout={3000}/>               
                       </>
                       
                       }

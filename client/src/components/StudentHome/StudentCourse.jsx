@@ -28,20 +28,22 @@ const useStyles = makeStyles({
   },
 });
 
-// const MediaCard=(props,{Course,percentage,title,name,code,title1,title2})=>{
-  const MediaCard=({User,Course,percentage,title,name,code,title1,title2})=>{    
-  // const {Course,percentage,title,name,code,title1,title2}=props;
-  // const {user}=props.auth;
+const MediaCard=(props)=>{
+  // const MediaCard=(props,{User,Course,percentage,title,name,code,title1,title2})=>{    
+  const {Course,percentage,title,name,code,title1,title2}=props;
+  const {user}=props.auth;
   const [student,setStudent]=useState('');
   useEffect(() => {
-    console.log(`Studentcourses`);
+    console.log(`Studentcourses ${JSON.stringify(user.email)}`);
     Course.students.map((student)=>{
-      if(student.roll_no===User.email){
+      if(student.roll_no===user.email){
         setStudent(student);
       }
     })
-    console.log(`percentage :: ${percentage}`);
-  }, [User,Course,percentage,title,name,code,title1,title2])
+    if(student){
+    console.log(`student :: ${student.email}`);
+  }
+  }, [user,Course,percentage,title,name,code,title1,title2])
   // console.log(`coverage : ${percentage} title :${title}`);
   const classes = useStyles();
   return (  

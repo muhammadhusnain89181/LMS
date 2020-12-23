@@ -1,6 +1,7 @@
 import React,{useEffect,useState} from 'react'
 import {makeStyles,createStyles,Grid} from '@material-ui/core'
 import {Link} from 'react-router-dom'
+import Loader from 'react-loader-spinner'
 import StudentCourses from './StudentCourses'
 import axios from 'axios'
 import store from 'store'
@@ -18,10 +19,10 @@ function Dashboard(props) {
   const [data,setData]=useState('');  
   // const [user,setUser]=useState(store.get('user'));
   useEffect(() => {
-    axios.get('http://localhost:3000/course/student/'+'muhammadusama@gmail.com')
+    axios.get('http://localhost:3000/course/student/'+user.email)
       .then((response)=>{
         setData(response.data.courses)
-        console.log(`${response.data.courses.length}`);
+        console.log(`${response.data.courses.length} :: ${JSON.stringify(user)}`);
         // console.log(`check user is ${user.email}`);
         // console.log(`teacher is ${user.role}`);
         // console.log(`teacher is ${store.get('user').id} ::${store.get('user').email} ::${store.get('user').role} :: ${store.get('user').accessToken}`);
@@ -32,7 +33,7 @@ function Dashboard(props) {
   return (
       <div className='jumbotron text-center mainIndex'>
         <div className='card'>
-          <div className='card-title h2'>Welcome to Dotmatriks LMS {user.email}</div>
+          <div className='card-title h2'>Welcome to Dotmatriks LMS</div>
           <hr className='my-4' />
           <div className='card-body'>
             <div className="h2">Student Courses Overview </div>
@@ -44,7 +45,7 @@ function Dashboard(props) {
                   : 
                   
                   <>                    
-                    <div className='h5'>Loading...</div>                    
+                    <Loader type='Puff' color='#00BFFF' height={100} width={100} timeout={3000}/>    
                   </>
                   
                   }

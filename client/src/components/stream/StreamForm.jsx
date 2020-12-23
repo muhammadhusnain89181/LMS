@@ -20,7 +20,8 @@ import useRDESocket from '../../hooks/useRDESocket'
 import InfoBar from '../Chat/InfoBar/InfoBar'
 import Input from '../Chat/Input/Input'
 import Messages from '../Chat/Messages/Messages'
-import Chat from '../Chat/Chat'
+import Chat from '../Chat/Chat/Chat'
+import NewChat from '../Chat/Chat'
 import Chatmodule from '../ChatModule/ChatModule'
 import store from 'store'
 import Peer from 'peerjs'
@@ -45,6 +46,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Drawer from '@material-ui/core/Drawer';
 import clsx from 'clsx';
 import {useTheme } from '@material-ui/core/styles';
+import Icon from '../Chat/icons/user-profile.png'
 const isProd = process.env.NODE_ENV === 'production'
 const drawerWidth = 400;
 const useStyles = makeStyles((theme) => createStyles({
@@ -133,26 +135,6 @@ const StreamForm = ({location}) => {
   const alert = useAlert()
   // const [open, setOpen] = React.useState(false);
   const [scroll, setScroll] = React.useState('paper');
-
-  const handleClickOpen = (scrollType) => () => {
-    setOpen(true);
-    setScroll(scrollType);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const descriptionElementRef = React.useRef(null);
-  React.useEffect(() => {
-    if (open) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [open]);
-
   //Check if extension is active
   useEffect(() => {
     if (isRDEActive) {
@@ -331,7 +313,6 @@ const StreamForm = ({location}) => {
     document.execCommand('copy')
     alert.success('Coppied co clipboard')
   }
-  
   const sendMessage = (event) => {
     event.preventDefault();
     if(message && socket) {
@@ -340,83 +321,33 @@ const StreamForm = ({location}) => {
       });
     }
   }
-  const DialogBox=()=>{
-    return (
-      <div>
-        <Button onClick={handleClickOpen('paper')}>scroll=paper</Button>
-        <Button onClick={handleClickOpen('body')}>scroll=body</Button>
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          scroll={scroll}
-          aria-labelledby="scroll-dialog-title"
-          aria-describedby="scroll-dialog-description"
-        >
-          <DialogTitle id="scroll-dialog-title">Subscribe</DialogTitle>
-          <DialogContent dividers={scroll === 'paper'}>
-            <DialogContentText
-              id="scroll-dialog-description"
-              ref={descriptionElementRef}
-              tabIndex={-1}
-            >
-              {[...new Array(50)]
-                .map(
-                  () => `Cras mattis consectetur purus sit amet fermentum.
-  Cras justo odio, dapibus ac facilisis in, egestas eget quam.
-  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-  Praesent commodo cursus magna, vel scelerisque nisl consectetur et.`,
-                )
-                .join('\n')}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleClose} color="primary">
-              Subscribe
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
-  }
-  ///Messages
   return (
   <Layout>
     <div className="outerContainer">
     <div className={classes.root}>
-      <Drawer
-        className={classes.drawer}
-        variant="persistent"
-        anchor="left"
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
-        <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        </div>
-        <Divider />
-        <Chat/>
+      <Drawer className={classes.drawer} variant="persistent" anchor="left" open={open} classes={{ paper: classes.drawerPaper, }} >
+          <div className={classes.drawerHeader}>
+            <IconButton onClick={handleDrawerClose}>  {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />} </IconButton>
+          </div>
+          <Divider />
+          <Chat messages={messages} name={name} message={message} setMessage={setMessage} sendMessage={sendMessage}/>
+          {/* <NewChat socket={socket} streamerId={room} name={name}/> */}
       </Drawer>
       <main
         className={ clsx(classes.content, { [classes.contentShift]: open, })}>
-        <Toolbar> <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
+        <Toolbar> 
+          <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)} >
-            <ChevronRightIcon /> </IconButton>
-            <div className='text-center pt-2'>
-                <button onClick={startCapture} type='button' className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Start <span className='fas fa-play ml-1'></span></button>
-                <button onClick={stopCapture} type='button' className={`btn btn-outline-danger waves-effect btn-round ${stream !== null ? '' : 'disabled'}`}>Stop <i className='fas fa-stop'></i></button>
-              </div>
+            <ChevronRightIcon /> 
+          </IconButton>
+          <div className='text-center pt-2'>
+            <button onClick={startCapture} type='button' className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Start <span className='fas fa-play ml-1'></span></button>
+            <button onClick={stopCapture} type='button' className={`btn btn-outline-danger waves-effect btn-round ${stream !== null ? '' : 'disabled'}`}>Stop <i className='fas fa-stop'></i></button>
+          </div>
         </Toolbar>
         <div className="col-12 sharedScreen border border-dark">
           <Animated> 
-          {/* <button type='button' onClick={handleClickOpen('paper')} className={`btn btn-outline-success waves-effect btn-round ${stream === null ? '' : 'disabled'}`}>Open <span className='fas fa-play ml-1'></span></button>                */}
             <Helmet>
               <title>{`${stream ? '🔴' : ''}`} PowerTeach &#183; Stream</title>
             </Helmet>
@@ -482,7 +413,6 @@ const StreamForm = ({location}) => {
         {/* </div> */}
       {/* </div> */}
     </div>
- 
   </Layout>
   )
 }

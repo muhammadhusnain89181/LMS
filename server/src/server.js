@@ -133,6 +133,7 @@ io.on('connection', socket => {
   })
 
   socket.on('sendMessage', ({message,streamerId,name}, callback) => {
+    console.log(`sendMessage`);
     const user = streams[streamerId];
     console.log(streamerId);
     // console.log(user.streamerName);

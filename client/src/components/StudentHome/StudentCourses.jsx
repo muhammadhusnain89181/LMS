@@ -13,7 +13,7 @@ import StudentCourse from './StudentCourse'
 const CoursesList=({User,Courses})=>{
     useEffect(() => {
         if(Courses.length>0){
-        console.log(`check course : ${Courses.length} :: ${Courses[0].percomplete}`);
+        console.log(`check course : ${Courses.length} :: ${Courses[0].percomplete} ${JSON.stringify(User)}`);
 
     }
   },[Courses])

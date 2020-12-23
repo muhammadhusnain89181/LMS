@@ -9,7 +9,8 @@ import { object } from 'prop-types'
 import './watch-form.scss'
 import { getCoords, getNaturalCoords } from '../../utils/coords'
 import queryString from 'query-string'
-import Chat from '../Chat/Chat'
+import Chat from '../Chat/Chat/Chat'
+import NewChat from '../Chat/Chat'
 // Custom hooks
 import usePeer from '../../hooks/usePeer'
 import useMyPeer from '../../hooks/useMyPeer'
@@ -29,6 +30,7 @@ import clsx from 'clsx';
 import {useTheme } from '@material-ui/core/styles';
 import {Grid,makeStyles,createStyles} from '@material-ui/core'
 import Divider from '@material-ui/core/Divider';
+import Icon from  '../Chat/icons/user-profile.png'
 const drawerWidth = 400;
 const useStyles = makeStyles((theme) => createStyles({
   root: {
@@ -116,7 +118,7 @@ const WatchForm = ({ location }) => {
   const [socket, isConnected] = useSignalingSocket('localhost:3000/', 'viewer', { peerId: name })
 
   // const peer = useMyPeer(name)
-  const peer =new Peer(name)
+  const peer =usePeer(name)
 
   const alert = useAlert()
 
@@ -177,15 +179,20 @@ const WatchForm = ({ location }) => {
         socket.emit('setProps', {
           to: streamId
         })
-        socket.on('message', message => {
-          console.log('Message is called');
-          //alert(message);
-          console.log(message);
-          setMessages(messages => [ ...messages, message ]);
-        });
       }
     }
   }, [socket, streamId, peer])
+  //setting Message to list
+  useEffect(()=>{
+    if(socket){
+      socket.on('message', message => {
+        console.log('Message is called');
+        //alert(message);
+        console.log(message);
+        setMessages(messages => [ ...messages, message ]);
+      });
+    }
+  },[socket])
   //call peer
   useEffect(() => {
     if (peer) {
@@ -282,12 +289,12 @@ const WatchForm = ({ location }) => {
 
     showCloseControls(e)
   }
-  const sendMessage = (event) => {
-    event.preventDefault();
-    if(message) {
-      socket.emit('sendMessage', {message,streamerId:streamId,name:name}, () => setMessage(''));
+    const sendMessage = (event) => {
+      event.preventDefault();
+      if(message) {
+        socket.emit('sendMessage', {message,streamerId:streamId,name:name}, () => setMessage(''));
+      }
     }
-  }
   return (
   <Layout>
     <div className="watch-form">
@@ -345,7 +352,8 @@ const WatchForm = ({ location }) => {
                         </IconButton>
                       </div>
                       <Divider />
-                      <Chat/>
+                      <Chat messages={messages} name={name} message={message} setMessage={setMessage} sendMessage={sendMessage}/>
+                      {/* <NewChat socket={socket} streamerId={room} name={name}/> */}
                     </Drawer>
                     <main
                       className={ clsx(classes.content, { [classes.contentShift]: open, })}>

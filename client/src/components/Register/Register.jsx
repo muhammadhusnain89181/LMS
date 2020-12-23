@@ -32,7 +32,6 @@ class Register extends Component {
             role:"",
             password:"",
             password2:"",
-            role:"",
             showPassword:false,
             showPassword2:false,
             errors:{}
@@ -71,6 +70,7 @@ class Register extends Component {
         const newUser = {
             name:this.state.full_name,
             email:this.state.email,
+            role:this.state.role,
             password:this.state.password,
             password2:this.state.password2
         }
@@ -120,10 +120,12 @@ class Register extends Component {
     //     }
     //     setChecked(newChecked)
     // }
-    // const handleRadioChange=(event)=>{
-    //     event.preventDefault();
-    //     setRole(event.target.value);
-    // }
+    handleRadioChange=(event)=>{
+        event.preventDefault();
+        this.setState({role:event.target.value})
+        // alert(this.state.role)
+        // setRole(event.target.value);
+    }
     // const SignUp=()=>{
     //     const user={
     //         name:name,
@@ -255,7 +257,7 @@ class Register extends Component {
                                     <span className="red-text">{errors.password2}</span>
                                 </div>
                                 <FormControl component="fieldset">
-                                        <RadioGroup row aria-label="position" name="position" onChange={this.onChange} defaultValue="top">
+                                        <RadioGroup row aria-label="position" name="position" onChange={this.handleRadioChange} defaultValue="top">
                                             <FormControlLabel
                                             value="student"
                                             control={<Radio color="primary" />}
